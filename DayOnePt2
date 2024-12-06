@@ -1,0 +1,100 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class DayOnePt2 {
+
+    public static void main(String[] args) {
+        String filePath = "adventValDay2.txt";
+
+        try {
+            int safeReportsCount = countSafeReports(filePath);
+            System.out.println("Number of safe reports: " + safeReportsCount);
+        } catch (FileNotFoundException e) {
+            System.err.println("Error reading the file: " + e.getMessage());
+        }
+    }
+
+    public static int countSafeReports(String filePath) throws FileNotFoundException {
+        Scanner scanner = new Scanner(new File(filePath));
+        int safeCount = 0;
+
+        while (scanner.hasNextLine()) {
+            String report = scanner.nextLine();
+            if (isSafeReport(report) || canBeMadeSafeByRemovingOne(report)) {
+                safeCount++;
+            }
+        }
+
+        scanner.close();
+        return safeCount;
+    }
+
+    public static boolean isSafeReport(String report) {
+        String[] levelsStr = report.split(" ");
+        int[] levels = new int[levelsStr.length];
+
+        for (int i = 0; i < levelsStr.length; i++) {
+            levels[i] = Integer.parseInt(levelsStr[i]);
+        }
+
+        boolean increasing = true;
+        boolean decreasing = true;
+
+        for (int i = 0; i < levels.length - 1; i++) {
+            if (levels[i] < levels[i + 1]) {
+                decreasing = false;
+            } else if (levels[i] > levels[i + 1]) {
+                increasing = false;
+            }
+        }
+
+        if (!increasing && !decreasing) {
+            return false;
+        }
+
+        for (int i = 0; i < levels.length - 1; i++) {
+            int diff = Math.abs(levels[i] - levels[i + 1]);
+            if (diff < 1 || diff > 3) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean canBeMadeSafeByRemovingOne(String report) {
+        String[] levelsStr = report.split(" ");
+        int[] levels = new int[levelsStr.length];
+
+        for (int i = 0; i < levelsStr.length; i++) {
+            levels[i] = Integer.parseInt(levelsStr[i]);
+        }
+
+        for (int i = 0; i < levels.length; i++) {
+            int[] modifiedLevels = new int[levels.length - 1];
+            for (int j = 0, k = 0; j < levels.length; j++) {
+                if (j != i) {
+                    modifiedLevels[k++] = levels[j];
+                }
+            }
+            if (isSafeReport(arrayToString(modifiedLevels))) {
+                return true; // Found a way to make it safe
+            }
+        }
+
+        return false; 
+    }
+
+   
+    private static String arrayToString(int[] array) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < array.length; i++) {
+            sb.append(array[i]);
+            if (i < array.length - 1) {
+                sb.append(" ");
+            }
+        }
+        return sb.toString();
+    }
+}
